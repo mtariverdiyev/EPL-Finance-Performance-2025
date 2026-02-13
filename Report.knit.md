@@ -21,7 +21,8 @@ This section describes **the process of collecting Premier League club financial
 ## 2.1. Web Scrape Financial Data
 We create a **web scraping** function called `scrape_transfermarkt_season` to extract club team market values from Transfermarkt. The function loads the page using Transfermarkt's standard URL format and extracts HTML tables for each season. This approach automatically collects the team values of all Premier League clubs as of August 15 for the last five seasons.
 
-```{r load_libraries, message=FALSE}
+
+``` r
 library(tidyverse)
 library(dslabs)
 library(tidyverse)
@@ -36,7 +37,8 @@ library(gt)
 library(knitr)
 ```
 
-```{r collect_financial_data, warning=FALSE, message=FALSE}
+
+``` r
 # Web scraping code for Transfermarkt
 
 # Function to scrape Transfermarkt for any season 
@@ -68,10 +70,33 @@ scrape_transfermarkt_season <- function(year)  {
 scrape_transfermarkt_season(2025)
 ```
 
+```
+## # A tibble: 21 × 13
+##      `#` wappen Club                   Club  League as at15/08/20…¹
+##    <int> <lgl>  <chr>                  <chr> <chr>                 
+##  1    NA NA     Total value of all cl… Tota… Total value of all cl…
+##  2     1 NA     Manchester City        Prem… €1.32bn               
+##  3     2 NA     Arsenal FC             Prem… €1.32bn               
+##  4     3 NA     Chelsea FC             Prem… €1.17bn               
+##  5     4 NA     Liverpool FC           Prem… €1.04bn               
+##  6     5 NA     Tottenham Hotspur      Prem… €832.10m              
+##  7     6 NA     Manchester United      Prem… €892.20m              
+##  8     7 NA     Newcastle United       Prem… €689.90m              
+##  9     8 NA     Nottingham Forest      Prem… €446.00m              
+## 10     9 NA     Crystal Palace         Prem… €456.20m              
+## # ℹ 11 more rows
+## # ℹ abbreviated name: ¹​`League as at15/08/2025`
+## # ℹ 8 more variables: `Value 15/08/2025` <chr>,
+## #   `Squad size 15/08/2025` <chr>, `Current value` <chr>,
+## #   `Current  squad size` <chr>, Difference <chr>, `%` <int>,
+## #   `` <chr>, `` <chr>
+```
+
 ## 2.2. Extraction of Performance Data
 In this part, we illustrate **the process of extracting in-field statistics** (such as expected goals (per 90 mins), xG, possession, etc.) of Premier League clubs, which is downloaded as a csv file from the **FBref** website. The function reads the CSV files stored in the `CSV/` folder for the last 5 seasons, stores each season’s data in the `all_seasons_performance_metrics` list, and finally combines them in a single data frame by using the `bind_rows` function. Together with the web scrape of financial data in 2.1, we collected and loaded all necessary data.
 
-```{r load_performance_data, warning=FALSE, message=FALSE}
+
+``` r
 # Function to extract performance metrics from pre-downloaded FBref CSV files
 extract_performace_metrics <- function() {
   # We focus on last 5 seasons
@@ -97,6 +122,29 @@ extract_performace_metrics <- function() {
 extract_performace_metrics()
 ```
 
+```
+## # A tibble: 100 × 41
+##       Rk Season    Team  Comp  xG...5    MP     W     D     L   Pts
+##    <dbl> <chr>     <chr> <chr>  <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
+##  1     1 2020-2021 Shef… eng …   32.6    38     7     2    29    23
+##  2     2 2020-2021 Crys… eng …   34.1    38    12     8    18    44
+##  3     3 2020-2021 West… eng …   35.8    38     5    11    22    26
+##  4     4 2020-2021 Wolv… eng …   36.5    38    12     9    17    45
+##  5     5 2020-2021 Burn… eng …   39.3    38    10     9    19    39
+##  6     6 2020-2021 Fulh… eng …   40.5    38     5    13    20    28
+##  7     7 2020-2021 Sout… eng …   41.2    38    12     7    19    43
+##  8     8 2020-2021 Newc… eng …   43.4    38    12     9    17    45
+##  9     9 2020-2021 Ever… eng …   45.7    38    17     8    13    59
+## 10    10 2020-2021 Brig… eng …   50.9    38     9    14    15    41
+## # ℹ 90 more rows
+## # ℹ 31 more variables: `Pts/MP` <dbl>, Min <dbl>, Subs <dbl>,
+## #   LgRank <dbl>, GF <dbl>, GA <dbl>, GD <dbl>, Poss <dbl>,
+## #   CS <dbl>, `CS%` <dbl>, `G-PK` <dbl>, PK <dbl>, PKatt <dbl>,
+## #   PKm <dbl>, xG...25 <dbl>, npxG <dbl>, xGD <dbl>, npxGD <dbl>,
+## #   xAG <dbl>, xA <dbl>, `G-xG` <dbl>, `np:G-xG` <dbl>,
+## #   `A-xAG` <dbl>, `npxG/Sh` <dbl>, Sh <dbl>, `G/Sh` <dbl>, …
+```
+
 # 3. Data Cleaning
 In this section, we are **cleaning the collected data** from a previous section. 
 
@@ -109,7 +157,8 @@ For processing raw Transfermarkt data for a single season, we construct a functi
 4. **Data selection**: keeps only relevant variables for analysis
 5. **Type conversion**: transforms text data to proper numeric formats
 
-```{r clean_financial_data, warning=FALSE, message=FALSE}
+
+``` r
 # Transfermarkt data cleaning
 
 # Function to clean the scraped table from Transfermarkt
@@ -144,11 +193,38 @@ clean_transfermarkt_table <- function(tab, year) {
 }
 clean_transfermarkt_table(scrape_transfermarkt_season(2025), 2025)
 ```
+
+```
+## # A tibble: 20 × 4
+##    club                    squad_value squad_size season   
+##    <chr>                         <dbl>      <dbl> <chr>    
+##  1 Manchester City               1320          34 2024-2025
+##  2 Arsenal FC                    1320          28 2024-2025
+##  3 Chelsea FC                    1170          36 2024-2025
+##  4 Liverpool FC                  1040          28 2024-2025
+##  5 Tottenham Hotspur              832.         30 2024-2025
+##  6 Manchester United              892.         32 2024-2025
+##  7 Newcastle United               690.         26 2024-2025
+##  8 Nottingham Forest              446          28 2024-2025
+##  9 Crystal Palace                 456.         30 2024-2025
+## 10 Aston Villa                    565          26 2024-2025
+## 11 Brighton & Hove Albion         577.         34 2024-2025
+## 12 AFC Bournemouth                420.         30 2024-2025
+## 13 Brentford FC                   387.         32 2024-2025
+## 14 Everton FC                     340.         23 2024-2025
+## 15 Fulham FC                      332.         23 2024-2025
+## 16 West Ham United                387.         29 2024-2025
+## 17 Sunderland AFC                 251.         41 2024-2025
+## 18 Leeds United                   272.         28 2024-2025
+## 19 Wolverhampton Wanderers        319          28 2024-2025
+## 20 Burnley FC                     236.         39 2024-2025
+```
 As we want to handle clubs' squad values in million euros, we multiply billion values by 1000 and keep million values untouched. All teams in Premier League worth millions, so we do not handle thousand values.
 
 ## 3.2. Execute Data Combination (Transfermarkt)
 The `combine_for_last_5_seasons()` function unites cleaned financial data across all five seasons into a single dataset. It iterates through the 2021-2025 seasons, scrapes and cleans each season's data by using our previously defined functions, and stores them in a list. Finally, it vertically combines all seasonal datasets using `bind_rows()`, creating a tidy data frame where each row represents one club in one specific season. This integrated dataset forms the complete foundation for our financial analysis of the Premier League.
-```{r combine_cleaned_financial_data, warning=FALSE, message=FALSE}
+
+``` r
 combine_for_last_5_seasons <- function() {
   # We focus on last 5 seasons
   seasons <- 2021:2025
@@ -172,12 +248,29 @@ combine_for_last_5_seasons <- function() {
 
   transfermarkt_data <- combine_for_last_5_seasons()
   transfermarkt_data
+```
 
+```
+## # A tibble: 100 × 4
+##    club              squad_value squad_size season   
+##    <chr>                   <dbl>      <dbl> <chr>    
+##  1 Manchester City        1060           25 2020-2021
+##  2 Arsenal FC              537           27 2020-2021
+##  3 Chelsea FC              998           37 2020-2021
+##  4 Liverpool FC            904.          32 2020-2021
+##  5 Tottenham Hotspur       704           26 2020-2021
+##  6 Manchester United       928.          30 2020-2021
+##  7 Newcastle United        246.          26 2020-2021
+##  8 Nottingham Forest        38.8         24 2020-2021
+##  9 Crystal Palace          215.          24 2020-2021
+## 10 Aston Villa             429.          25 2020-2021
+## # ℹ 90 more rows
 ```
 ## 3.3. Performance Data Cleaning (FBref)
 Cleaning of performance data, such as selecting key variables and standardizing club names to be the same as Transfermarkt data, is done in this part. Our particular function named `clean_performance_metrics()` initially acquires raw in-field statistics by calling the `extract_performace_metrics()` function, then selects the more appropriate factors, including expected goals without penalties (`npxG`), expected goals difference (`npxGD`), expected assisted goals (`xAG`), possession, and goals per shot (`shot_conversion`), for the analysis. To evaluate the defense performance, the expected no penalty goals against `npxGA` are calculated based on `npxG` and `npxGD`, then added to the data frame. Essentially, we standardize club names, which is the key step to successfully combine both data frames in the next section.
 
-```{r clean_performance_data, warning=FALSE, message=FALSE}
+
+``` r
 # Function to clean and select key performance metrics
 clean_performace_metrics <- function() {
   
@@ -199,10 +292,29 @@ fbref_data <- clean_performace_metrics()
 fbref_data
 ```
 
+```
+## # A tibble: 100 × 9
+##    season    club          league_rank  npxG npxGD   xAG possession
+##    <chr>     <chr>               <dbl> <dbl> <dbl> <dbl>      <dbl>
+##  1 2020-2021 Sheffield Un…          20  29.5 -29.6  24.9       41.7
+##  2 2020-2021 Crystal Pala…          14  31   -24.1  23.6       40.6
+##  3 2020-2021 West Brom              19  32.7 -26.6  24.4       37.9
+##  4 2020-2021 Wolverhampto…          13  33.4  -9.8  24.1       49.3
+##  5 2020-2021 Burnley FC             17  36.9 -15.4  27.7       42.1
+##  6 2020-2021 Fulham FC              18  35.9 -11.2  26.3       49.7
+##  7 2020-2021 Southampton            15  36.6  -9.5  25.8       52  
+##  8 2020-2021 Newcastle Un…          12  37.8 -16.6  29         38.8
+##  9 2020-2021 Everton FC             10  41.9  -5    30.7       46.4
+## 10 2020-2021 Brighton & H…          16  43.8  14    33.2       51.1
+## # ℹ 90 more rows
+## # ℹ 2 more variables: shot_conversion <dbl>, npxGA <dbl>
+```
+
 ## 3.4. Merge Financial and Performance Data
 In the last step of data cleaning, financial data, which involves Premier League clubs' squad values and squad sizes across seasons, scraped from Transfermarkt, and in-field metrics from FBref are united in a single data frame. The `combine_transfermarkt_fbref()` function achieves it by using `inner_join()`, ensuring that we work on rows existing in both datasets. Following that, the function converts the type of season column from character into a chronologically ordered factor, which is an essential amendment to plot the seasonal trends. Finally, our united dataset called `data` will be used for the analysis part.
 
-```{r clean_financial_and_performance_data, warning=FALSE, message=FALSE}
+
+``` r
 # Function to combine both financial(squad value) and performance(expected goals, ...) data
 combine_transfermarkt_fbref <- function() {
   # Merge financial and performance data
@@ -218,7 +330,25 @@ combine_transfermarkt_fbref <- function() {
 # Execute the function
 data <- combine_transfermarkt_fbref()
 data
+```
 
+```
+## # A tibble: 82 × 11
+##    club       squad_value squad_size season league_rank  npxG npxGD
+##    <chr>            <dbl>      <dbl> <ord>        <dbl> <dbl> <dbl>
+##  1 Mancheste…       1060          25 2020-…           1  61.2  38.9
+##  2 Arsenal FC        537          27 2020-…           8  47     6.4
+##  3 Chelsea FC        998          37 2020-…           4  54.5  27.4
+##  4 Liverpool…        904.         32 2020-…           3  62.9  26  
+##  5 Tottenham…        704          26 2020-…           7  49.2   7.9
+##  6 Mancheste…        928.         30 2020-…           2  51.4  13.1
+##  7 Newcastle…        246.         26 2020-…          12  37.8 -16.6
+##  8 Crystal P…        215.         24 2020-…          14  31   -24.1
+##  9 Aston Vil…        429.         25 2020-…          11  47.9   1.5
+## 10 Brighton …        248.         30 2020-…          16  43.8  14  
+## # ℹ 72 more rows
+## # ℹ 4 more variables: xAG <dbl>, possession <dbl>,
+## #   shot_conversion <dbl>, npxGA <dbl>
 ```
 
 
@@ -227,14 +357,18 @@ data
 ## 4.1 Scatter Plot: League Rank vs Squad Value
 The **scatter plot** demonstrates the relationship between a club's financial power, measured by squad value, and its competitive success, measured by final league position, across 5 seasons. It is obvious that there is a **negative correlation: higher squad values are strongly associated with lower league ranks**. For example, clubs positioned in the top 5 of the league typically have squad values exceeding approximately €600 million, while those ranking ninth or below are mostly grouped below €500 million. In addition, the red dashed linear line reinforces this observation that more investment in players increases the competition and the team's potential for success in the league. 
 
-```{r financial_analysis, warning=FALSE, message=FALSE}
+
+``` r
 # Scatter Plot
 data |> ggplot(aes(x = squad_value, y = league_rank, color = season)) + geom_point(size = 2, alpha = 0.75) + geom_smooth(method = "lm", se = FALSE, color = "red", linetype = "dashed", linewidth = 0.8) + facet_wrap(~season, nrow = 2) + labs (title = "Scatter Plot: League Rank vs Squad Value", y = "League Rank", x = "Squad Value (million €)") + scale_y_reverse(breaks = seq(1, 20, by = 4)) + theme_minimal() + theme(legend.position = "none")
 ```
 
+![](README_files/figure-gfm/financial_analysis-1.png)<!-- -->
+
 ## 4.2 Linear Regression Model: Calculation of Correlation
 
-```{r financial_correlation}
+
+``` r
 # Apply linear regression model
 model <- lm(league_rank ~ squad_value, data = data)
 
@@ -249,19 +383,32 @@ cat("Linear Regression Results:\n",
   "P-value: ", ifelse(p_value < 0.001, "< 0.001", "> 0.001"), "\n", "Slope (Coefficient): ", round(slope, 4), "\n") 
 ```
 
+```
+## Linear Regression Results:
+##  -------------------------
+##  R-squared:  0.586 
+##  P-value:  < 0.001 
+##  Slope (Coefficient):  -0.0122
+```
+
 **Interpretation:** The **r-squared value** is `0.586`, which means that `58.6%` of clubs having different league ranks is associated with their squad values. Most importantly, a **p-value < 0.001** reveals a highly significant negative correlation between squad value and league rank. Also, **slope** helps us predict the improvement in league rank for every increase in the squad value. For instance, when squad value increases by `€1 million`, then rank improves by `0.0122` positions. For `1` position improvement, squad value must increase by  `1 / 0.0122 ≈ €82 million`.
 
 # 5. Analysis for Question 2
 To visualize the correlation between Premier League clubs' league ranks and in-pitch statistics, a **correlation matrix** is used. The correlation matrix reveals that both `npxG` (expected goals without penalties, r = `-0.7684164`) and `xAG` (expected assisted goals, r = `-0.7677398`), which determine the quality of attacks, are strongly correlated with league rank. This leads us to think that chance creation to score is the primary driver of top league positions. It is surprising that possession (r = `-0.7012525`) has more positive impacts on league rank than defensive strength (r = `0.6365615`). This finding challenges the conventional wisdom that better defense is key to winning a league title. Among all of these metrics, shot conversion (r = `-0.5953237`) has the least correlation with league rank, although it is still moderately important. 
 As a result, these findings suggest that chance creation and ball control are better predictors of success than defense.
 
-```{r correlation-matrix_analysis}
+
+``` r
 # Create a correlation matrix
 cor_matrix <- data |> select(league_rank, npxG, xAG, possession, shot_conversion, npxGA) |> cor(use = "complete.obs")
 
 # Plot correlation matrix
 corrplot::corrplot(cor_matrix, method = "color", type = "upper", title = "Correlation Matrix: Attack & Defense Metrics & League Rank", mar = c(0, 0, 1, 0))
+```
 
+![](README_files/figure-gfm/correlation-matrix_analysis-1.png)<!-- -->
+
+``` r
 cat("Correlation Analysis Results:\n",
 "_____________________________________________________________________\n",
 "Correlation between league rank and npxG:", cor_matrix["league_rank", "npxG"], "\n",
@@ -271,10 +418,21 @@ cat("Correlation Analysis Results:\n",
 "Correlation between league rank and npxGA:", cor_matrix["league_rank", "npxGA"], "\n")
 ```
 
+```
+## Correlation Analysis Results:
+##  _____________________________________________________________________
+##  Correlation between league rank and npxG: -0.7684164 
+##  Correlation between league rank and xAG: -0.7677398 
+##  Correlation between league rank and possession: -0.7012525 
+##  Correlation between league rank and shot_conversion: -0.5953237 
+##  Correlation between league rank and npxGA: 0.6365615
+```
+
 # 6. What does weigh more: squad value or in-field statistics?
 To determine whether squad value or in-match stats are the primary driver of success in the Premier League, **hierarchical regression** is utilized. The main objective of this method is to calculate and compare the linear regression models for single and combined factors. 
 
-```{r hierarchical-regression-analysis }
+
+``` r
 # Model 1: Only squad value
 model_squad_value <- lm(league_rank ~ squad_value, data = data)
 # Model 2: Only performance stats
@@ -293,7 +451,15 @@ cat("Model Results\n",
     "Performance stats alone explain: ", r2_performance_stats, " of rank variation\n",
     "Combined data explain: ", r2_combined, " of rank variation\n", 
     "Performance stats add: ", r2_combined - r2_squad_value, " beyond squad value alone")
+```
 
+```
+## Model Results
+##  ----------------------------
+##  Squad value alone explains:  0.5862098  of rank variation
+##  Performance stats alone explain:  0.6940074  of rank variation
+##  Combined data explain:  0.7388353  of rank variation
+##  Performance stats add:  0.1526255  beyond squad value alone
 ```
 **Interpretation:** As combined data better explain the variations of clubs' league ranks, it is obvious that squad value and in-game stats are **complementary** instead of competing. This suggests a **symbiotic relationship** in which financial power enables the acquisition of talent, which exhibits itself as excellence in in-pitch stats. 
 
